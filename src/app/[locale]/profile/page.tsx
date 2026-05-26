@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter }           from "next/navigation";
 import { createClient }        from "../../../lib/supabase/client";
-import { LogOut, Star, Calendar, TrendingUp } from "lucide-react";
+import { LogOut, Star, Calendar, TrendingUp, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 export default function ProfilePage({ params }: { params: { locale: string } }) {
