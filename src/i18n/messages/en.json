@@ -1,0 +1,105 @@
+{
+  "brand": {
+    "name": "MA'N'GIA",
+    "tagline": "Roman pinsa • Authentic flavours"
+  },
+  "nav": {
+    "home":       "Home",
+    "menu":       "Menu",
+    "loyalty":    "Loyalty Card",
+    "promotions": "Promotions",
+    "profile":    "Profile",
+    "cart":       "Cart"
+  },
+  "home": {
+    "welcome":          "Welcome",
+    "heroTitle":        "The pinsa\nyou didn't\nsee coming",
+    "heroSubtitle":     "Long-fermented Roman dough, carefully sourced ingredients, genuine taste.",
+    "ctaMenu":          "Browse the menu",
+    "ctaOrder":         "Order now",
+    "sectionFeatured":  "Our must-haves",
+    "sectionPromos":    "Active promotions",
+    "sectionLoyalty":   "Your loyalty card",
+    "pointsBalance":    "{points} points",
+    "pointsLabel":      "Your points",
+    "noPromos":         "No active promotions right now."
+  },
+  "menu": {
+    "title":             "Menu",
+    "searchPlaceholder": "Search the menu…",
+    "allCategories":     "All",
+    "noResults":         "No products found.",
+    "available":         "Available",
+    "unavailable":       "Not available",
+    "addToCart":         "Add",
+    "allergens":         "Allergens",
+    "ingredients":       "Ingredients",
+    "tags": {
+      "popular":   "Popular",
+      "signature": "Signature",
+      "novità":    "New",
+      "promo":     "Promo"
+    }
+  },
+  "cart": {
+    "title":     "Cart",
+    "empty":     "Your cart is empty.",
+    "emptyHint": "Add something delicious from the menu!",
+    "subtotal":  "Subtotal",
+    "discount":  "Discount",
+    "total":     "Total",
+    "checkout":  "Proceed to checkout",
+    "remove":    "Remove",
+    "quantity":  "Quantity"
+  },
+  "loyalty": {
+    "title":            "Loyalty Card",
+    "yourPoints":       "Your points",
+    "lifetimePoints":   "Total points earned",
+    "availableRewards": "Available rewards",
+    "lockedRewards":    "Coming up next",
+    "pointsNeeded":     "{points} more points needed",
+    "redeem":           "Redeem",
+    "history":          "Points history",
+    "noHistory":        "No transactions yet.",
+    "reasons": {
+      "purchase": "Purchase",
+      "redeemed": "Reward redeemed",
+      "manual":   "Manual assignment",
+      "bonus":    "Bonus"
+    }
+  },
+  "auth": {
+    "login":           "Log in",
+    "register":        "Sign up",
+    "email":           "Email",
+    "password":        "Password",
+    "fullName":        "Full name",
+    "forgotPassword":  "Forgot your password?",
+    "noAccount":       "Don't have an account?",
+    "alreadyAccount":  "Already have an account?",
+    "loginHere":       "Log in here",
+    "registerHere":    "Sign up here",
+    "loginSuccess":    "Logged in successfully!",
+    "registerSuccess": "Registration complete!",
+    "logout":          "Log out"
+  },
+  "promotions": {
+    "title":       "Promotions",
+    "membersOnly": "Members only",
+    "until":       "Until {date}",
+    "noPromos":    "No active promotions."
+  },
+  "common": {
+    "loading": "Loading…",
+    "error":   "Something went wrong.",
+    "retry":   "Retry",
+    "close":   "Close",
+    "confirm": "Confirm",
+    "cancel":  "Cancel",
+    "save":    "Save",
+    "back":    "Back",
+    "euros":   "€{amount}",
+    "points":  "{count} points"
+  }
+}

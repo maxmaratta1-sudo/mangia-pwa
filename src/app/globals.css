@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Brand CSS Variables ─────────────────────────────────────────────────── */
+:root {
+  --color-primary:    #c8522a;
+  --color-secondary:  #647d3e;
+  --color-bg:         #fef9ea;
+  --color-bg-light:   #fffdf7;
+  --color-dark:       #292524;
+  --color-muted:      #6e6a63;
+  --color-border:     #d1cfcb;
+  --font-display:     "Playfair Display", Georgia, serif;
+  --font-sans:        "Lato", system-ui, sans-serif;
+}
+
+/* ── Base ────────────────────────────────────────────────────────────────── */
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: #fef9ea;
+    overscroll-behavior-y: none;
+  }
+
+  /* Safe area for notch devices */
+  .safe-b {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  /* Smooth font rendering */
+  * {
+    -webkit-font-smoothing:  antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Focus ring */
+  :focus-visible {
+    outline:        2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+/* ── Typography ──────────────────────────────────────────────────────────── */
+@layer base {
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    line-height: 1.15;
+    color: #292524;
+  }
+
+  h1 { font-size: clamp(2rem,    6vw, 2.75rem); }
+  h2 { font-size: clamp(1.5rem,  5vw, 2rem);    }
+  h3 { font-size: clamp(1.125rem, 4vw, 1.35rem); }
+
+  p {
+    line-height: 1.65;
+    color: #57534d;
+  }
+}
+
+/* ── Utility classes ─────────────────────────────────────────────────────── */
+@layer utilities {
+  .font-display { font-family: var(--font-display); }
+
+  /* Hide scrollbar but keep functionality */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width:    none;
+  }
+
+  /* Gradient text */
+  .text-gradient {
+    background: linear-gradient(135deg, #c8522a 0%, #a8401f 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Pressed state for touch */
+  .active\:scale-98:active { transform: scale(0.98); }
+}
+
+/* ── Page transitions ────────────────────────────────────────────────────── */
+@layer utilities {
+  .page-enter {
+    animation: pageEnter 0.25s ease-out;
+  }
+
+  @keyframes pageEnter {
+    from {
+      opacity:   0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity:   1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* ── Scrollbar styling (desktop) ─────────────────────────────────────────── */
+@media (min-width: 640px) {
+  ::-webkit-scrollbar       { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background:    #d1cfcb;
+    border-radius: 3px;
+  }
+}

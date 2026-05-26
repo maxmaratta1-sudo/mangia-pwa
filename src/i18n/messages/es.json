@@ -1,0 +1,105 @@
+{
+  "brand": {
+    "name": "MA'N'GIA",
+    "tagline": "Pinsa romana • Sabores auténticos"
+  },
+  "nav": {
+    "home":       "Inicio",
+    "menu":       "Menú",
+    "loyalty":    "Tarjeta Fidelidad",
+    "promotions": "Promociones",
+    "profile":    "Perfil",
+    "cart":       "Carrito"
+  },
+  "home": {
+    "welcome":          "Bienvenido",
+    "heroTitle":        "La pinsa\nque no\nte esperabas",
+    "heroSubtitle":     "Masa romana de larga fermentación, ingredientes seleccionados, sabor auténtico.",
+    "ctaMenu":          "Ver el menú",
+    "ctaOrder":         "Pedir ahora",
+    "sectionFeatured":  "Nuestros imprescindibles",
+    "sectionPromos":    "Promociones activas",
+    "sectionLoyalty":   "Tu tarjeta de fidelidad",
+    "pointsBalance":    "{points} puntos",
+    "pointsLabel":      "Tus puntos",
+    "noPromos":         "No hay promociones activas en este momento."
+  },
+  "menu": {
+    "title":             "El menú",
+    "searchPlaceholder": "Buscar en el menú…",
+    "allCategories":     "Todo",
+    "noResults":         "No se encontraron productos.",
+    "available":         "Disponible",
+    "unavailable":       "No disponible",
+    "addToCart":         "Agregar",
+    "allergens":         "Alérgenos",
+    "ingredients":       "Ingredientes",
+    "tags": {
+      "popular":   "Popular",
+      "signature": "Signature",
+      "novità":    "Novedad",
+      "promo":     "Promo"
+    }
+  },
+  "cart": {
+    "title":     "Carrito",
+    "empty":     "Tu carrito está vacío.",
+    "emptyHint": "¡Agregá algo rico desde el menú!",
+    "subtotal":  "Subtotal",
+    "discount":  "Descuento",
+    "total":     "Total",
+    "checkout":  "Ir al pago",
+    "remove":    "Eliminar",
+    "quantity":  "Cantidad"
+  },
+  "loyalty": {
+    "title":            "Tarjeta Fidelidad",
+    "yourPoints":       "Tus puntos",
+    "lifetimePoints":   "Puntos totales acumulados",
+    "availableRewards": "Beneficios disponibles",
+    "lockedRewards":    "Próximos beneficios",
+    "pointsNeeded":     "{points} puntos más",
+    "redeem":           "Canjear",
+    "history":          "Historial de puntos",
+    "noHistory":        "Sin transacciones aún.",
+    "reasons": {
+      "purchase": "Compra",
+      "redeemed": "Beneficio canjeado",
+      "manual":   "Asignación manual",
+      "bonus":    "Bonus"
+    }
+  },
+  "auth": {
+    "login":           "Iniciar sesión",
+    "register":        "Registrarse",
+    "email":           "Email",
+    "password":        "Contraseña",
+    "fullName":        "Nombre completo",
+    "forgotPassword":  "¿Olvidaste tu contraseña?",
+    "noAccount":       "¿No tenés cuenta?",
+    "alreadyAccount":  "¿Ya tenés cuenta?",
+    "loginHere":       "Iniciá sesión aquí",
+    "registerHere":    "Registrate aquí",
+    "loginSuccess":    "¡Sesión iniciada!",
+    "registerSuccess": "¡Registro completado!",
+    "logout":          "Cerrar sesión"
+  },
+  "promotions": {
+    "title":       "Promociones",
+    "membersOnly": "Solo para miembros",
+    "until":       "Hasta el {date}",
+    "noPromos":    "No hay promociones activas."
+  },
+  "common": {
+    "loading": "Cargando…",
+    "error":   "Ocurrió un error.",
+    "retry":   "Reintentar",
+    "close":   "Cerrar",
+    "confirm": "Confirmar",
+    "cancel":  "Cancelar",
+    "save":    "Guardar",
+    "back":    "Volver",
+    "euros":   "€{amount}",
+    "points":  "{count} puntos"
+  }
+}

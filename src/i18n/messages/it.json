@@ -1,0 +1,105 @@
+{
+  "brand": {
+    "name": "MA'N'GIA",
+    "tagline": "Pinsa romana • Sapori autentici"
+  },
+  "nav": {
+    "home":       "Home",
+    "menu":       "Menù",
+    "loyalty":    "Carta Fedeltà",
+    "promotions": "Promozioni",
+    "profile":    "Profilo",
+    "cart":       "Carrello"
+  },
+  "home": {
+    "welcome":          "Benvenuto",
+    "heroTitle":        "La pinsa\nche non\nt'aspetti",
+    "heroSubtitle":     "Impasto romano a lunga lievitazione, ingredienti selezionati, gusto autentico.",
+    "ctaMenu":          "Sfoglia il menù",
+    "ctaOrder":         "Ordina ora",
+    "sectionFeatured":  "I nostri must",
+    "sectionPromos":    "Promozioni in corso",
+    "sectionLoyalty":   "La tua carta fedeltà",
+    "pointsBalance":    "{points} punti",
+    "pointsLabel":      "I tuoi punti",
+    "noPromos":         "Nessuna promozione attiva al momento."
+  },
+  "menu": {
+    "title":         "Il menù",
+    "searchPlaceholder": "Cerca nel menù…",
+    "allCategories": "Tutto",
+    "noResults":     "Nessun prodotto trovato.",
+    "available":     "Disponibile",
+    "unavailable":   "Non disponibile",
+    "addToCart":     "Aggiungi",
+    "allergens":     "Allergeni",
+    "ingredients":   "Ingredienti",
+    "tags": {
+      "popular":   "Popolare",
+      "signature": "Signature",
+      "novità":    "Novità",
+      "promo":     "Promo"
+    }
+  },
+  "cart": {
+    "title":        "Carrello",
+    "empty":        "Il tuo carrello è vuoto.",
+    "emptyHint":    "Aggiungi qualcosa di buono dal menù!",
+    "subtotal":     "Subtotale",
+    "discount":     "Sconto",
+    "total":        "Totale",
+    "checkout":     "Procedi al pagamento",
+    "remove":       "Rimuovi",
+    "quantity":     "Quantità"
+  },
+  "loyalty": {
+    "title":           "Carta Fedeltà",
+    "yourPoints":      "I tuoi punti",
+    "lifetimePoints":  "Punti totali accumulati",
+    "availableRewards":"Premi disponibili",
+    "lockedRewards":   "Prossimi premi",
+    "pointsNeeded":    "{points} punti mancanti",
+    "redeem":          "Riscatta",
+    "history":         "Storico punti",
+    "noHistory":       "Nessuna transazione ancora.",
+    "reasons": {
+      "purchase":  "Acquisto",
+      "redeemed":  "Premio riscattato",
+      "manual":    "Assegnazione manuale",
+      "bonus":     "Bonus"
+    }
+  },
+  "auth": {
+    "login":              "Accedi",
+    "register":           "Registrati",
+    "email":              "Email",
+    "password":           "Password",
+    "fullName":           "Nome e cognome",
+    "forgotPassword":     "Password dimenticata?",
+    "noAccount":          "Non hai un account?",
+    "alreadyAccount":     "Hai già un account?",
+    "loginHere":          "Accedi qui",
+    "registerHere":       "Registrati qui",
+    "loginSuccess":       "Accesso effettuato!",
+    "registerSuccess":    "Registrazione completata!",
+    "logout":             "Esci"
+  },
+  "promotions": {
+    "title":         "Promozioni",
+    "membersOnly":   "Solo per iscritti",
+    "until":         "Fino al {date}",
+    "noPromos":      "Nessuna promozione attiva."
+  },
+  "common": {
+    "loading":   "Caricamento…",
+    "error":     "Si è verificato un errore.",
+    "retry":     "Riprova",
+    "close":     "Chiudi",
+    "confirm":   "Conferma",
+    "cancel":    "Annulla",
+    "save":      "Salva",
+    "back":      "Indietro",
+    "euros":     "€{amount}",
+    "points":    "{count} punti"
+  }
+}
