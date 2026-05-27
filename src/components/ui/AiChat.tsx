@@ -20,9 +20,9 @@ interface AiChatProps {
 }
 
 const WELCOME: Record<string, string> = {
-  it: "Ciao! 👋 Sono l'assistente di MA'N'GIA. Posso aiutarti a scoprire il menù, suggerire abbinamenti o aggiungere qualcosa al carrello. Come posso aiutarti?",
-  es: "¡Hola! 👋 Soy el asistente de MA'N'GIA. Puedo ayudarte a descubrir el menú, sugerir combinaciones o agregar algo al carrito. ¿Cómo puedo ayudarte?",
-  en: "Hi! 👋 I'm the MA'N'GIA assistant. I can help you explore the menu, suggest pairings or add something to your cart. How can I help you?",
+  it: "Ciao! 👋 Sono Maia, l'assistente di MA'N'GIA. Posso aiutarti a scoprire il menù, suggerire abbinamenti o aggiungere qualcosa al carrello. Come posso aiutarti?",
+  es: "¡Hola! 👋 Soy Maia, la asistente de MA'N'GIA. Puedo ayudarte a descubrir el menú, sugerir combinaciones o agregar algo al carrito. ¿Cómo puedo ayudarte?",
+  en: "Hi! 👋 I'm Maia, the MA'N'GIA assistant. I can help you explore the menu, suggest pairings or add something to your cart. How can I help you?",
 };
 
 const PLACEHOLDER: Record<string, string> = {
@@ -130,8 +130,8 @@ export function AiChat({ locale }: AiChatProps) {
               <ChefHat size={16} className="text-white" />
             </div>
             <div>
-              <p className="text-white font-display font-semibold text-sm leading-tight">MA'N'GIA Assistant</p>
-              <p className="text-white/70 text-[10px]">AI · sempre disponibile</p>
+              <p className="text-white font-display font-semibold text-sm leading-tight">Maia</p>
+              <p className="text-white/70 text-[10px]">AI · MA'N'GIA · sempre disponibile</p>
             </div>
           </div>
 
@@ -146,7 +146,7 @@ export function AiChat({ locale }: AiChatProps) {
                       : "bg-white text-graphite-800 shadow-sm rounded-bl-sm"
                   }`}
                 >
-                  {msg.content}
+                  {msg.content.replace(/\*\*(.*?)\*\*/g, '$1')}
                 </div>
                 {msg.cartAction && (
                   <button
