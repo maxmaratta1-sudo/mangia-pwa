@@ -12,8 +12,10 @@ export default function CartPage({ params }: { params: { locale: string } }) {
   const locale     = params.locale ?? "it";
   const router     = useRouter();
   const { items, updateQty, removeItem, totalPrice, clearCart } = useCartStore();
-  const [showPopup, setShowPopup] = useState(false);
-  const [checking,  setChecking ] = useState(false);
+  const [showPopup,  setShowPopup ] = useState(false);
+  const [checking,   setChecking  ] = useState(false);
+  const [modalita,   setModalita  ] = useState<"banco" | "asporto">("banco");
+
 
   async function handleCheckout() {
     setChecking(true);
@@ -142,12 +144,26 @@ export default function CartPage({ params }: { params: { locale: string } }) {
           Come preferisci?
         </h3>
         <div className="grid grid-cols-2 gap-2">
-          <button className="py-3 px-4 rounded-xl border-2 border-terracotta-500 bg-terracotta-50 text-terracotta-700 text-sm font-medium">
-            🏃 Ritiro al banco
-          </button>
-          <button className="py-3 px-4 rounded-xl border border-graphite-200 text-graphite-600 text-sm font-medium hover:border-terracotta-300 transition-all">
-            🛍️ D'asporto
-          </button>
+         <button
+           onClick={() => setModalita("banco")}
+           className={`py-3 px-4 rounded-xl text-sm font-medium transition-all ${
+             modalita === "banco"
+               ? "border-2 border-terracotta-500 bg-terracotta-50 text-terracotta-700"
+               : "border border-graphite-200 text-graphite-600 hover:border-terracotta-300"
+           }`}
+        >
+          🏃 Ritiro al banco
+        </button>
+        <button
+          onClick={() => setModalita("asporto")}
+          className={`py-3 px-4 rounded-xl text-sm font-medium transition-all ${
+            modalita === "asporto"
+              ? "border-2 border-terracotta-500 bg-terracotta-50 text-terracotta-700"
+              : "border border-graphite-200 text-graphite-600 hover:border-terracotta-300"
+          }`}
+        >
+          🛍️ D'asporto
+        </button>
         </div>
       </div>
 
