@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-
 export async function POST(req: NextRequest) {
   try {
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
     const { items, locale = "it", userId } = await req.json();
 
     const line_items = items.map((item: any) => ({
@@ -13,7 +12,7 @@ export async function POST(req: NextRequest) {
         product_data: {
           name: item.name,
         },
-        unit_amount: Math.round(item.price * 100), // Stripe usa centesimi
+        unit_amount: Math.round(item.price * 100),
       },
       quantity: item.quantity,
     }));
