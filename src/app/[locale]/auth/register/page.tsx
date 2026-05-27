@@ -44,11 +44,18 @@ export default function RegisterPage({ params }: { params: { locale: string } })
         role:      "customer",
       });
 
-      // Crear cuenta de fidelización
+      // Crear cuenta de fidelización con 100 puntos de benvenuto
       await supabase.from("loyalty_accounts").insert({
         user_id:         data.user.id,
-        total_points:    0,
-        lifetime_points: 0,
+        total_points:    100,
+        lifetime_points: 100,
+      });
+
+      // Registrar transacción de bienvenida
+      await supabase.from("loyalty_transactions").insert({
+        user_id:      data.user.id,
+        points_delta: 100,
+        reason:       "benvenuto",
       });
     }
 

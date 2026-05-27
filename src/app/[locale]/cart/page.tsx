@@ -1,12 +1,38 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useCartStore } from "../../../store/cartStore";
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
+import { WelcomePopup } from "../../../components/ui/WelcomePopup";
+import { createClient } from "../../../lib/supabase/client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function CartPage({ params }: { params: { locale: string } }) {
   const locale     = params.locale ?? "it";
+  const router     = useRouter();
   const { items, updateQty, removeItem, totalPrice, clearCart } = useCartStore();
+  const [showPopup, setShowPopup] = useState(false);
+  const [checking,  setChecking ] = useState(false);
+
+  async function handleCheckout() {
+    setChecking(true);
+    const supabase = createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    setChecking(false);
+
+    if (!session) {
+      setShowPopup(true);
+      return;
+    }
+
+    router.push(`/${locale}/checkout`);
+  }
+
+  function handleContinueAsGuest() {
+    setShowPopup(false);
+    router.push(`/${locale}/checkout`);
+  }
 
   if (items.length === 0) {
     return (
@@ -31,6 +57,15 @@ export default function CartPage({ params }: { params: { locale: string } }) {
 
   return (
     <div className="px-4 pt-6 pb-32 animate-fade-in">
+
+      {showPopup && (
+        <WelcomePopup
+          locale={locale}
+          onClose={() => setShowPopup(false)}
+          onContinueAsGuest={handleContinueAsGuest}
+        />
+      )}
+
       <div className="flex items-center justify-between mb-6">
         <h1 className="font-display text-2xl font-bold text-graphite-800">
           Il carrello
@@ -61,17 +96,12 @@ export default function CartPage({ params }: { params: { locale: string } }) {
                   </p>
                 )}
               </div>
-
-              {/* Quantity controls */}
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => updateQty(item.id, item.quantity - 1)}
                   className="w-8 h-8 rounded-full border border-graphite-200 flex items-center justify-center text-graphite-600 hover:border-terracotta-400 hover:text-terracotta-600 transition-all"
                 >
-                  {item.quantity === 1
-                    ? <Trash2 size={14} />
-                    : <Minus size={14} />
-                  }
+                  {item.quantity === 1 ? <Trash2 size={14} /> : <Minus size={14} />}
                 </button>
                 <span className="font-bold text-graphite-800 text-sm w-4 text-center">
                   {item.quantity}
@@ -123,16 +153,19 @@ export default function CartPage({ params }: { params: { locale: string } }) {
 
       {/* CTA */}
       <div className="fixed bottom-20 left-0 right-0 px-4">
-        <Link
-          href={`/${locale}/checkout`}
-          className="flex items-center justify-between w-full max-w-lg mx-auto bg-terracotta-500 text-white px-6 py-4 rounded-2xl shadow-warm-lg hover:bg-terracotta-600 transition-all"
+        <button
+          onClick={handleCheckout}
+          disabled={checking}
+          className="flex items-center justify-between w-full max-w-lg mx-auto bg-terracotta-500 text-white px-6 py-4 rounded-2xl shadow-warm-lg hover:bg-terracotta-600 transition-all disabled:opacity-60"
         >
-          <span className="font-medium">Procedi al pagamento</span>
+          <span className="font-medium">
+            {checking ? "Verifica..." : "Procedi al pagamento"}
+          </span>
           <div className="flex items-center gap-2">
             <span className="font-bold">€ {totalPrice().toFixed(2)}</span>
             <ArrowRight size={18} />
           </div>
-        </Link>
+        </button>
       </div>
     </div>
   );
