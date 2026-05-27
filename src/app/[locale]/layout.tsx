@@ -8,6 +8,8 @@ import { routing }   from "../../i18n/routing";
 import { Header }    from "../../components/layout/Header";
 import { BottomNav } from "../../components/layout/BottomNav";
 import "../globals.css";
+import { AiChat } from "../../components/ui/AiChat";
+
 
 // ── Fonts ────────────────────────────────────────────────────────────────────
 const playfair = Playfair_Display({
@@ -31,19 +33,19 @@ export const metadata: Metadata = {
     template: "%s | MA'N'GIA",
   },
   description:
-    "Pinsa romana a lievitazione naturale. Sapori autentici, ingredienti selezionati.",
+    "Pinsa a lievitazione naturale. Sapori autentici, ingredienti selezionati.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable:          true,
     statusBarStyle:   "default",
-    title:            "MA'N'GIA",
+    title:            "MA'N'GIA — Al Localino · Street Pinsa",
   },
   formatDetection: { telephone: false },
   openGraph: {
     type:      "website",
     siteName:  "MA'N'GIA",
-    title:     "MA'N'GIA — Pinsa Romana",
-    description: "Pinsa romana a lievitazione naturale. Sapori autentici.",
+    title:     "MA'N'GIA — Al Localino · Street Pinsa",
+    description: "Pinsa a lievitazione naturale. Sapori autentici.",
   },
 };
 
@@ -86,6 +88,7 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
 
           {/* Bottom nav */}
           <BottomNav locale={locale} />
+          <AiChat locale={locale} />
         </NextIntlClientProvider>
       </body>
     </html>
