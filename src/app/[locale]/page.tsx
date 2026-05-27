@@ -3,6 +3,7 @@ import Image               from "next/image";
 import { getTranslations } from "next-intl/server";
 import { ArrowRight, Star } from "lucide-react";
 import { createClient }    from "../../lib/supabase/server";
+import { HomeWelcomePopup } from "../../components/ui/HomeWelcomePopup";
 
 interface HomePageProps {
   params: Promise<{ locale: string }>;
@@ -61,6 +62,7 @@ export default async function HomePage({ params }: HomePageProps) {
 
   return (
     <div className="animate-fade-in">
+      <HomeWelcomePopup locale={locale} isLoggedIn={!!user} />
 
       {/* Hero */}
       <section className="relative px-4 pt-10 pb-8 flex flex-col items-center text-center overflow-hidden">
