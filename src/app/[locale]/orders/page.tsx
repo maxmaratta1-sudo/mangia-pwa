@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter }           from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient }        from "../../../lib/supabase/client";
 import { ShoppingBag, ArrowRight } from "lucide-react";
+import { useCartStore }        from "../../../store/cartStore";
 import Link from "next/link";
 
 const STATUS_LABELS: Record<string, string> = {
@@ -28,6 +29,14 @@ export default function OrdersPage({ params }: { params: { locale: string } }) {
 
   const [orders,  setOrders ] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const searchParams = useSearchParams();
+  const clearCart    = useCartStore((s) => s.clearCart);
+
+  useEffect(() => {
+    if (searchParams.get("success") === "true") {
+      clearCart();
+    }
+  }, []);
 
   useEffect(() => {
     async function load() {
