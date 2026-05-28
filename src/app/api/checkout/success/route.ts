@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { createClient } from "../../../../lib/supabase/server";
+import { createClient as createServiceClient } from "@supabase/supabase-js";
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,7 +18,10 @@ export async function POST(req: NextRequest) {
     }
 
     const amount = (session.amount_total ?? 0) / 100;
-    const supabase = await createClient();
+    const supabase = createServiceClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
 
     // Controlla se l'ordine esiste già (evita duplicati)
     const { data: existing } = await supabase
