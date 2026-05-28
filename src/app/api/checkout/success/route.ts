@@ -40,7 +40,10 @@ export async function POST(req: NextRequest) {
       .insert({
         user_id:           userId,
         total:             amount,
+        subtotal:          amount,
+        discount:          0,
         status:            "received",
+        order_type:        "takeaway",
         payment_method:    "stripe",
         stripe_session_id: stripeSessionId,
       })
