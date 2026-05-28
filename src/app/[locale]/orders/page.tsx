@@ -24,47 +24,48 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function OrdersPage({ params }: { params: { locale: string } }) {
-  const router = useRouter();
-  const loc    = params.locale ?? "it";
-
-  const [orders,  setOrders ] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const router       = useRouter();
+  const loc          = params.locale ?? "it";
   const searchParams = useSearchParams();
   const clearCart    = useCartStore((s) => s.clearCart);
 
-  useEffect(() => {
-    if (searchParams.get("success") === "true") {
-      clearCart();
-    }
-  }, []);
+  const [orders,  setOrders ] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function handleSuccess() {
-      if (searchParams.get("success") !== "true") return;
-      
-      clearCart();
-
+    async function init() {
       const supabase = createClient();
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
+      if (!session) { router.push(`/${loc}/auth/login`); return; }
 
-      // Recupera l'ultimo ordine Stripe non ancora processato
-      const stripeSession = searchParams.get("session_id");
-      if (!stripeSession) return;
+      // Se arrivo da Stripe con successo
+      if (searchParams.get("success") === "true") {
+        clearCart();
+        const stripeSessionId = searchParams.get("session_id");
+        if (stripeSessionId) {
+          await fetch("/api/checkout/success", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userId: session.user.id,
+              stripeSessionId,
+            }),
+          });
+        }
+      }
 
-      // Chiama la nostra API per processare il pagamento
-      await fetch("/api/checkout/success", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: session.user.id,
-          stripeSessionId: stripeSession,
-        }),
-      });
+      // Carica gli ordini
+      const { data } = await supabase
+        .from("orders")
+        .select("*, order_items(quantity, unit_price, products(name_i18n))")
+        .eq("user_id", session.user.id)
+        .order("created_at", { ascending: false });
+
+      setOrders(data ?? []);
+      setLoading(false);
     }
-    handleSuccess();
+    init();
   }, []);
-
 
   function formatDate(date: string) {
     return new Date(date).toLocaleDateString("it-IT", {
@@ -105,8 +106,6 @@ export default function OrdersPage({ params }: { params: { locale: string } }) {
         <div className="flex flex-col gap-4">
           {orders.map((order) => (
             <div key={order.id} className="bg-white rounded-2xl shadow-card p-4">
-
-              {/* Header */}
               <div className="flex items-start justify-between mb-3">
                 <div>
                   <p className="text-graphite-400 text-xs">
@@ -121,7 +120,6 @@ export default function OrdersPage({ params }: { params: { locale: string } }) {
                 </span>
               </div>
 
-              {/* Items */}
               <div className="bg-graphite-50 rounded-xl p-3 mb-3">
                 {order.order_items?.map((item: any, i: number) => (
                   <div key={i} className="flex justify-between text-xs text-graphite-600 py-0.5">
@@ -135,7 +133,6 @@ export default function OrdersPage({ params }: { params: { locale: string } }) {
                 </div>
               </div>
 
-              {/* Footer */}
               <div className="flex items-center justify-between">
                 <span className="text-graphite-400 text-xs">
                   {order.order_type === "dine_in" ? "🏃 Ritiro al banco" : "🛍️ D'asporto"}
@@ -147,7 +144,6 @@ export default function OrdersPage({ params }: { params: { locale: string } }) {
                 )}
               </div>
 
-              {/* Alert se pronto */}
               {order.status === "ready" && (
                 <div className="mt-3 bg-olive-50 border border-olive-300 rounded-xl px-3 py-2">
                   <p className="text-olive-700 text-sm font-medium text-center">
