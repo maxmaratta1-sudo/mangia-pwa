@@ -39,22 +39,32 @@ export default function OrdersPage({ params }: { params: { locale: string } }) {
   }, []);
 
   useEffect(() => {
-    async function load() {
+    async function handleSuccess() {
+      if (searchParams.get("success") !== "true") return;
+      
+      clearCart();
+
       const supabase = createClient();
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { router.push(`/${loc}/auth/login`); return; }
+      if (!session) return;
 
-      const { data } = await supabase
-        .from("orders")
-        .select("*, order_items(quantity, unit_price, products(name_i18n))")
-        .eq("user_id", session.user.id)
-        .order("created_at", { ascending: false });
+      // Recupera l'ultimo ordine Stripe non ancora processato
+      const stripeSession = searchParams.get("session_id");
+      if (!stripeSession) return;
 
-      setOrders(data ?? []);
-      setLoading(false);
+      // Chiama la nostra API per processare il pagamento
+      await fetch("/api/checkout/success", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: session.user.id,
+          stripeSessionId: stripeSession,
+        }),
+      });
     }
-    load();
+    handleSuccess();
   }, []);
+
 
   function formatDate(date: string) {
     return new Date(date).toLocaleDateString("it-IT", {

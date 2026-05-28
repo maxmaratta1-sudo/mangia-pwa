@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
       payment_method_types: ["card"],
       line_items,
       mode: "payment",
-      success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/${locale}/orders?success=true`,
+      success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/${locale}/orders?success=true&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/${locale}/checkout?cancelled=true`,
       metadata: {
         userId,

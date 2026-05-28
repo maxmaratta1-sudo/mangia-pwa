@@ -106,8 +106,6 @@ export default function CheckoutPage({ params }: { params: { locale: string } })
           </span>
         </div>
       </div>
-
-// Sotto al div del totale, prima di "Stripe note"
       <div className="bg-olive-50 border border-olive-200 rounded-xl p-3 mb-4 flex items-center gap-2">
         <span className="text-lg">⭐</span>
         <p className="text-olive-700 text-sm">
