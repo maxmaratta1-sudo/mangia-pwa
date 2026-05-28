@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
       .from("orders")
       .insert({
         user_id:           userId,
-        total_amount:      amount,
+        total:             amount,
         status:            "received",
         payment_method:    "stripe",
         stripe_session_id: stripeSessionId,
