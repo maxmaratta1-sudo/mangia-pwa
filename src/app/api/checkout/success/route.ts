@@ -28,11 +28,11 @@ export async function POST(req: NextRequest) {
       .from("orders")
       .select("id")
       .eq("stripe_session_id", stripeSessionId)
-      .single();
+      .maybeSingle();
 
-    if (existing) {
-      return NextResponse.json({ ok: true, already: true });
-    }
+   if (existing) {
+     return NextResponse.json({ ok: true, already: true });
+   }
 
     // Crea l'ordine
     const { data: order } = await supabase
