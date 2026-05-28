@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "../../../../lib/supabase/server";
+import { createClient } from "../../../lib/supabase/server";
 
 const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN!;
 const WA_TOKEN    = process.env.WHATSAPP_TOKEN!;
