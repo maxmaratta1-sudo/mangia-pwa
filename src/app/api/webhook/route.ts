@@ -2,14 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "../../../lib/supabase/server";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-
 export async function POST(req: NextRequest) {
-  const body = await req.text();
-  const sig  = req.headers.get("stripe-signature")!;
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+  const body   = await req.text();
+  const sig    = req.headers.get("stripe-signature")!;
 
   let event: Stripe.Event;
-
   try {
     event = stripe.webhooks.constructEvent(
       body,
@@ -28,20 +26,18 @@ export async function POST(req: NextRequest) {
     if (userId) {
       const supabase = await createClient();
 
-      // Crear el orden en Supabase
       const { data: order } = await supabase
         .from("orders")
         .insert({
-          user_id:       userId,
-          total_amount:  amount,
-          status:        "confirmed",
-          payment_method: "stripe",
+          user_id:           userId,
+          total_amount:      amount,
+          status:            "confirmed",
+          payment_method:    "stripe",
           stripe_session_id: session.id,
         })
         .select()
         .single();
 
-      // Agregar puntos fidelità (1 punto por cada euro)
       const pointsToAdd = Math.floor(amount);
 
       if (order) {
