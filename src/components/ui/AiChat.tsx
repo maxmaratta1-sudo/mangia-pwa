@@ -4,15 +4,17 @@ import { useState, useRef, useEffect } from "react";
 import { useCartStore } from "../../store/cartStore";
 import { MessageCircle, X, Send, ShoppingCart, ChefHat } from "lucide-react";
 
+interface CartAction {
+  action: string;
+  product_id: string;
+  product_name: string;
+  price: number;
+}
+
 interface Message {
   role: "user" | "assistant";
   content: string;
-  cartAction?: {
-    action: string;
-    product_id: string;
-    product_name: string;
-    price: number;
-  } | null;
+  cartActions?: CartAction[];
 }
 
 interface AiChatProps {
@@ -32,22 +34,28 @@ const PLACEHOLDER: Record<string, string> = {
 };
 
 const ADD_LABEL: Record<string, string> = {
-  it: "Aggiungi al carrello",
-  es: "Agregar al carrito",
-  en: "Add to cart",
+  it: "Aggiungi",
+  es: "Agregar",
+  en: "Add",
 };
 
 const ADDED_LABEL: Record<string, string> = {
-  it: "Aggiunto! ✓",
-  es: "¡Agregado! ✓",
-  en: "Added! ✓",
+  it: "Aggiunto ✓",
+  es: "Agregado ✓",
+  en: "Added ✓",
+};
+
+const ADD_ALL_LABEL: Record<string, string> = {
+  it: "Aggiungi tutto al carrello 🛒",
+  es: "Agregar todo al carrito 🛒",
+  en: "Add everything to cart 🛒",
 };
 
 export function AiChat({ locale }: AiChatProps) {
   const [open, setOpen]         = useState(false);
   const [input, setInput]       = useState("");
   const [loading, setLoading]   = useState(false);
-  const [added, setAdded]       = useState<string | null>(null);
+  const [added, setAdded]       = useState<Set<string>>(new Set());
   const [messages, setMessages] = useState<Message[]>([
     { role: "assistant", content: WELCOME[locale] ?? WELCOME.it },
   ]);
@@ -84,7 +92,7 @@ export function AiChat({ locale }: AiChatProps) {
       const data = await res.json();
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: data.text, cartAction: data.cartAction },
+        { role: "assistant", content: data.text, cartActions: data.cartActions ?? [] },
       ]);
     } catch {
       setMessages((prev) => [
@@ -96,15 +104,25 @@ export function AiChat({ locale }: AiChatProps) {
     }
   }
 
-  function handleAddToCart(msg: Message) {
-    if (!msg.cartAction) return;
-    addItem({
-      id:    msg.cartAction.product_id,
-      name:  msg.cartAction.product_name,
-      price: msg.cartAction.price,
-    });
-    setAdded(msg.cartAction.product_id);
-    setTimeout(() => setAdded(null), 2000);
+  function markAdded(id: string) {
+    setAdded((prev) => new Set(prev).add(id));
+    setTimeout(() => {
+      setAdded((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }, 2000);
+  }
+
+  function addOne(a: CartAction) {
+    addItem({ id: a.product_id, name: a.product_name, price: a.price });
+    markAdded(a.product_id);
+  }
+
+  function addAll(actions: CartAction[]) {
+    actions.forEach((a) => addItem({ id: a.product_id, name: a.product_name, price: a.price }));
+    actions.forEach((a) => markAdded(a.product_id));
   }
 
   return (
@@ -146,22 +164,38 @@ export function AiChat({ locale }: AiChatProps) {
                       : "bg-white text-graphite-800 shadow-sm rounded-bl-sm"
                   }`}
                 >
-                  {msg.content.replace(/\*\*(.*?)\*\*/g, '$1')}
+                  {msg.content.replace(/\*\*(.*?)\*\*/g, "$1")}
                 </div>
-                {msg.cartAction && (
-                  <button
-                    onClick={() => handleAddToCart(msg)}
-                    className={`mt-1.5 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                      added === msg.cartAction.product_id
-                        ? "bg-olive-500 text-white"
-                        : "bg-terracotta-100 text-terracotta-700 hover:bg-terracotta-200"
-                    }`}
-                  >
-                    <ShoppingCart size={12} />
-                    {added === msg.cartAction.product_id
-                      ? ADDED_LABEL[locale] ?? ADDED_LABEL.it
-                      : `${ADD_LABEL[locale] ?? ADD_LABEL.it} — €${msg.cartAction.price}`}
-                  </button>
+
+                {msg.cartActions && msg.cartActions.length > 0 && (
+                  <div className="mt-1.5 flex flex-col gap-1.5 items-start">
+                    {msg.cartActions.map((a, j) => (
+                      <button
+                        key={j}
+                        onClick={() => addOne(a)}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                          added.has(a.product_id)
+                            ? "bg-olive-500 text-white"
+                            : "bg-terracotta-100 text-terracotta-700 hover:bg-terracotta-200"
+                        }`}
+                      >
+                        <ShoppingCart size={12} />
+                        {added.has(a.product_id)
+                          ? `${a.product_name} ${ADDED_LABEL[locale] ?? ADDED_LABEL.it}`
+                          : `${ADD_LABEL[locale] ?? ADD_LABEL.it}: ${a.product_name} — €${a.price}`}
+                      </button>
+                    ))}
+
+                    {msg.cartActions.length > 1 && (
+                      <button
+                        onClick={() => addAll(msg.cartActions!)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-terracotta-500 text-white hover:bg-terracotta-600 transition-all"
+                      >
+                        <ShoppingCart size={12} />
+                        {ADD_ALL_LABEL[locale] ?? ADD_ALL_LABEL.it}
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
             ))}
