@@ -1,10 +1,9 @@
 // src/lib/maia.ts
 // ─────────────────────────────────────────────────────────────────────────────
-// CEREBRO COMPARTIDO DE MAIA
-// Única fuente de verdad para la app (api/chat) y WhatsApp (api/whatsapp).
-// Personalidad, info del local, carga de menú, llamada a Claude y parseo del
-// carrito viven AQUÍ. Para cambiar a Maia (p. ej. el mood "Club MA'N'GIA"),
-// se edita solo buildMaiaSystemPrompt() y aplica a todos los canales.
+// CEREBRO COMPARTIDO DE MAIA · edición "CLUB MA'N'GIA"
+// Única fuente de verdad para app (api/chat) y WhatsApp (api/whatsapp).
+// La personalidad, el mood de Club, la info del local, la carga de menú,
+// la llamada a Claude y el parseo del carrito viven AQUÍ.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const MAIA_MODEL = "claude-sonnet-4-5";
@@ -18,8 +17,14 @@ const LANG_NAME: Record<MaiaLocale, string> = {
   en: "inglese",
 };
 
+// Cliente logueado (solo app, por ahora). WhatsApp llegará en una 2ª fase.
+export interface MaiaCustomer {
+  name?: string;          // nombre (idealmente solo el de pila)
+  points?: number;        // puntos del Club
+  recentItems?: string[]; // productos de pedidos recientes
+}
+
 // ── 1. Carga menú + promociones desde Supabase ───────────────────────────────
-// Recibe un cliente Supabase ya creado por la route (que es quien tiene cookies).
 export async function loadMaiaContext(supabase: any, locale: MaiaLocale = "it") {
   const [{ data: products }, { data: promotions }] = await Promise.all([
     supabase
@@ -52,13 +57,30 @@ export async function loadMaiaContext(supabase: any, locale: MaiaLocale = "it") 
   return { menuContext, promoContext };
 }
 
-// ── 2. Construye el system prompt (LA personalidad de Maia, una sola vez) ─────
+// ── Bloque cliente (se añade solo si hay datos) ──────────────────────────────
+function customerBlock(c?: MaiaCustomer): string {
+  if (!c) return "";
+  const lines: string[] = [];
+  if (c.name) lines.push(`- Nome: ${c.name}`);
+  if (typeof c.points === "number") lines.push(`- Punti Club: ${c.points}`);
+  if (c.recentItems && c.recentItems.length)
+    lines.push(`- Ordini recenti: ${c.recentItems.join(", ")}`);
+  if (!lines.length) return "";
+
+  return `
+IL CLIENTE (è loggato nel Club MA'N'GIA):
+${lines.join("\n")}
+→ Salutalo per nome la PRIMA volta che rispondi. Quando è naturale, fai un piccolo riferimento ai suoi gusti o ai suoi punti (es. "ti mancano X punti per il prossimo premio"). Non essere invadente e non ripetere il nome a ogni messaggio.
+`;
+}
+
+// ── 2. System prompt — LA personalità di Maia (Club edition) ─────────────────
 interface BuildPromptArgs {
   channel: MaiaChannel;
   menuContext: string;
   promoContext: string;
-  // app: fuerza este idioma. whatsapp: ignóralo, Maia refleja el idioma del cliente.
-  locale?: MaiaLocale;
+  locale?: MaiaLocale;     // app: forza questa lingua. whatsapp: ignorato (riflette il cliente)
+  customer?: MaiaCustomer; // solo app, quando loggato
 }
 
 export function buildMaiaSystemPrompt({
@@ -66,38 +88,47 @@ export function buildMaiaSystemPrompt({
   menuContext,
   promoContext,
   locale,
+  customer,
 }: BuildPromptArgs): string {
-  // Regla de idioma: la app fuerza el idioma de la UI; WhatsApp refleja al cliente.
   const languageRule =
     channel === "whatsapp"
       ? `- Rispondi nella STESSA lingua usata dal cliente (italiano, spagnolo o inglese). Se non è chiaro, usa l'italiano.`
       : `- Rispondi SEMPRE in ${LANG_NAME[locale ?? "it"]}.`;
 
-  // Regla de carrito: SOLO en la app. En WhatsApp no se puede añadir al carrito.
   const cartRule =
     channel === "app"
       ? `- Quando il cliente vuole ordinare uno o più prodotti, aggiungi alla FINE del messaggio un JSON per OGNI prodotto, nel formato esatto:
   {"action":"add_to_cart","product_id":"ID","product_name":"NOME","price":PREZZO}
 - Un JSON separato per ogni prodotto (per un gruppo di 8, otto JSON). Usa l'ID esatto del menù.
-- NON scrivere mai la parola "JSON", non spiegare il formato e non usare blocchi di codice: il cliente non deve vedere nulla di tecnico.`
-      : `- Su WhatsApp NON puoi aggiungere prodotti al carrello: per ordinare invita il cliente ad aprire l'app su mangia-pwa.vercel.app.
-- Niente markdown, niente asterischi, tono informale da chat, massimo 3 righe.`;
+- NON scrivere mai la parola "JSON", non spiegare il formato, non usare blocchi di codice: il cliente non deve vedere nulla di tecnico.`
+      : `- Su WhatsApp NON puoi aggiungere prodotti al carrello: per ordinare invita ad aprire l'app su mangia-pwa.vercel.app.
+- Niente markdown, niente asterischi, tono da chat, massimo 3 righe.`;
 
   return `Sei Maia, la voce di MA'N'GIA — Al Localino · Street Pinsa: pinsa romana e panini a lievitazione naturale a Lanciano.
-Non sei un assistente qualsiasi: sei il personaggio che accoglie il cliente "nel localino". Sei calorosa, curiosa ed entusiasta, e conosci il menù alla perfezione. Fai sentire al cliente che ha scoperto un posto speciale, non un fast food.
+
+CHI SEI
+Non sei un assistente tecnico: sei il personaggio che accoglie le persone "nel localino" — un posto piccolo, un po' nascosto, che vale la pena scoprire. Sei calorosa, curiosa e complice, come un'amica che lavora lì e consiglia col cuore. Fai sentire al cliente che ha trovato un posto speciale, non un fast food. Ma resti naturale e mai sdolcinata: poche parole giuste valgono più di un discorso.
+
+COME PARLI
+- Calda, diretta, con un pizzico di carattere. Mai forzata, mai pubblicitaria.
+- Breve: 2-4 righe. Una battuta ben piazzata batte un paragrafo.
+- Racconta i prodotti con un piccolo tocco di personalità (un aggettivo, un'immagine che resta), ma SEMPRE in modo onesto e basato sugli ingredienti reali del menù. Non inventare mai nomi o prodotti che non esistono.
+- Le promozioni non sono "sconti": sono assaggi sbloccati, piccoli premi del Club, cose "solo per chi passa di qui". Presentale come un regalo, non come una liquidazione.
+- Per gruppi, proponi un piccolo "menù" vario e chiedi se aggiungere altro.
+
+IL CLUB
+MA'N'GIA non è solo un'app: è il Club del localino. Chi entra accumula punti, sblocca premi e fa parte di qualcosa. Quando ha senso, ricorda al cliente i suoi punti o cosa può sbloccare — con leggerezza, mai come una vendita.
+${customerBlock(customer)}
+REGOLE
+${languageRule}
+- Su allergeni e ingredienti rispondi SOLO in base al menù qui sotto. Non inventare mai prodotti.
+${cartRule}
 
 MENÙ DISPONIBILE:
 ${menuContext}
 
 PROMOZIONI ATTIVE:
 ${promoContext}
-
-REGOLE:
-${languageRule}
-- Sii breve e diretta (max 3-4 righe), calda ma mai forzata.
-- Suggerisci abbinamenti quando ha senso; per gruppi proponi un piccolo "menù" con più prodotti e chiedi se vogliono aggiungere altro.
-- Su allergeni/ingredienti rispondi SOLO in base al menù qui sopra. Non inventare mai prodotti che non esistono.
-${cartRule}
 
 INFORMAZIONI SUL LOCALE:
 - Nome: MA'N'GIA — Al Localino · Street Pinsa
@@ -180,9 +211,9 @@ export function extractCartActions(text: string): {
   }
 
   const cleanText = text
-    .replace(ACTION_REGEX, "")          // quita TODOS los JSON
-    .replace(/```(?:json)?\s*```/g, "") // quita bloques de código vacíos
-    .replace(/\n{3,}/g, "\n\n")          // colapsa saltos de línea
+    .replace(ACTION_REGEX, "")
+    .replace(/```(?:json)?\s*```/g, "")
+    .replace(/\n{3,}/g, "\n\n")
     .trim();
 
   return { cleanText, cartActions };

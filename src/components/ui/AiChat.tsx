@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useCartStore } from "../../store/cartStore";
+import { createClient } from "../../lib/supabase/client";
 import { MessageCircle, X, Send, ShoppingCart, ChefHat } from "lucide-react";
 
 interface CartAction {
@@ -21,10 +22,18 @@ interface AiChatProps {
   locale: string;
 }
 
+// Bienvenida con mood de Club (sin nombre)
 const WELCOME: Record<string, string> = {
-  it: "Ciao! 👋 Sono Maia, l'assistente di MA'N'GIA. Posso aiutarti a scoprire il menù, suggerire abbinamenti o aggiungere qualcosa al carrello. Come posso aiutarti?",
-  es: "¡Hola! 👋 Soy Maia, la asistente de MA'N'GIA. Puedo ayudarte a descubrir el menú, sugerir combinaciones o agregar algo al carrito. ¿Cómo puedo ayudarte?",
-  en: "Hi! 👋 I'm Maia, the MA'N'GIA assistant. I can help you explore the menu, suggest pairings or add something to your cart. How can I help you?",
+  it: "Hai trovato il localino 🔥 Sono Maia, la voce di MA'N'GIA. Dimmi che fame hai e ti porto al morso giusto — o lascia che ti sorprenda.",
+  es: "Encontraste el localino 🔥 Soy Maia, la voz de MA'N'GIA. Dime qué hambre tienes y te llevo al bocado justo — o deja que te sorprenda.",
+  en: "You found the localino 🔥 I'm Maia, the voice of MA'N'GIA. Tell me how hungry you are and I'll take you to the right bite — or let me surprise you.",
+};
+
+// Saludo por nombre (cliente logueado) → "Ciao Giacomo! "
+const GREET: Record<string, (name: string) => string> = {
+  it: (n) => `Ciao ${n}! `,
+  es: (n) => `¡Hola ${n}! `,
+  en: (n) => `Hi ${n}! `,
 };
 
 const PLACEHOLDER: Record<string, string> = {
@@ -71,6 +80,38 @@ export function AiChat({ locale }: AiChatProps) {
   useEffect(() => {
     if (open) setTimeout(() => inputRef.current?.focus(), 100);
   }, [open]);
+
+  // Si hay sesión, saluda por nombre en el mensaje de bienvenida
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const supabase = createClient();
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session || !active) return;
+
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", session.user.id)
+          .single();
+
+        const full = (profile?.full_name as string | undefined)?.trim();
+        const firstName = full ? full.split(" ")[0] : undefined;
+        if (!firstName || !active) return;
+
+        // Personaliza solo si seguimos en el saludo inicial (1 mensaje)
+        setMessages((prev) => {
+          if (prev.length !== 1 || prev[0].role !== "assistant") return prev;
+          const greet = (GREET[locale] ?? GREET.it)(firstName);
+          return [{ ...prev[0], content: greet + (WELCOME[locale] ?? WELCOME.it) }];
+        });
+      } catch {
+        /* sin sesión / error → bienvenida genérica, sin romper nada */
+      }
+    })();
+    return () => { active = false; };
+  }, [locale]);
 
   async function send() {
     if (!input.trim() || loading) return;
@@ -149,7 +190,7 @@ export function AiChat({ locale }: AiChatProps) {
             </div>
             <div>
               <p className="text-white font-display font-semibold text-sm leading-tight">Maia</p>
-              <p className="text-white/70 text-[10px]">AI · MA'N'GIA · sempre disponibile</p>
+              <p className="text-white/70 text-[10px]">AI · Club MA'N'GIA · sempre disponibile</p>
             </div>
           </div>
 
