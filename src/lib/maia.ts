@@ -1,9 +1,6 @@
 // src/lib/maia.ts
 // ─────────────────────────────────────────────────────────────────────────────
-// CEREBRO COMPARTIDO DE MAIA · edición "CLUB MA'N'GIA"
-// Única fuente de verdad para app (api/chat) y WhatsApp (api/whatsapp).
-// La personalidad, el mood de Club, la info del local, la carga de menú,
-// la llamada a Claude y el parseo del carrito viven AQUÍ.
+// CEREBRO COMPARTIDO DE MAIA · v3 "CLUB MA'N'GIA + Onboarding WhatsApp"
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const MAIA_MODEL = "claude-sonnet-4-5";
@@ -17,14 +14,16 @@ const LANG_NAME: Record<MaiaLocale, string> = {
   en: "inglese",
 };
 
-// Cliente logueado (solo app, por ahora). WhatsApp llegará en una 2ª fase.
+// Link de registro al Club (con tracking de origen WhatsApp QR)
+const CLUB_JOIN_LINK = "https://mangia-pwa.vercel.app/it/auth/register?ref=wa_qr";
+
 export interface MaiaCustomer {
-  name?: string;          // nombre (idealmente solo el de pila)
-  points?: number;        // puntos del Club
-  recentItems?: string[]; // productos de pedidos recientes
+  name?: string;
+  points?: number;
+  recentItems?: string[];
 }
 
-// ── 1. Carga menú + promociones desde Supabase ───────────────────────────────
+// ── 1. Carga menú + promos ───────────────────────────────────────────────────
 export async function loadMaiaContext(supabase: any, locale: MaiaLocale = "it") {
   const [{ data: products }, { data: promotions }] = await Promise.all([
     supabase
@@ -57,7 +56,7 @@ export async function loadMaiaContext(supabase: any, locale: MaiaLocale = "it") 
   return { menuContext, promoContext };
 }
 
-// ── Bloque cliente (se añade solo si hay datos) ──────────────────────────────
+// ── Bloque cliente logueado ──────────────────────────────────────────────────
 function customerBlock(c?: MaiaCustomer): string {
   if (!c) return "";
   const lines: string[] = [];
@@ -66,21 +65,20 @@ function customerBlock(c?: MaiaCustomer): string {
   if (c.recentItems && c.recentItems.length)
     lines.push(`- Ordini recenti: ${c.recentItems.join(", ")}`);
   if (!lines.length) return "";
-
   return `
 IL CLIENTE (è loggato nel Club MA'N'GIA):
 ${lines.join("\n")}
-→ Salutalo per nome la PRIMA volta che rispondi. Quando è naturale, fai un piccolo riferimento ai suoi gusti o ai suoi punti (es. "ti mancano X punti per il prossimo premio"). Non essere invadente e non ripetere il nome a ogni messaggio.
+→ Salutalo per nome la PRIMA volta. Quando è naturale, fai un piccolo riferimento ai suoi punti o ai suoi gusti. Non essere invadente e non ripetere il nome ad ogni messaggio.
 `;
 }
 
-// ── 2. System prompt — LA personalità di Maia (Club edition) ─────────────────
+// ── 2. System prompt ─────────────────────────────────────────────────────────
 interface BuildPromptArgs {
   channel: MaiaChannel;
   menuContext: string;
   promoContext: string;
-  locale?: MaiaLocale;     // app: forza questa lingua. whatsapp: ignorato (riflette il cliente)
-  customer?: MaiaCustomer; // solo app, quando loggato
+  locale?: MaiaLocale;
+  customer?: MaiaCustomer;
 }
 
 export function buildMaiaSystemPrompt({
@@ -99,25 +97,34 @@ export function buildMaiaSystemPrompt({
     channel === "app"
       ? `- Quando il cliente vuole ordinare uno o più prodotti, aggiungi alla FINE del messaggio un JSON per OGNI prodotto, nel formato esatto:
   {"action":"add_to_cart","product_id":"ID","product_name":"NOME","price":PREZZO}
-- Un JSON separato per ogni prodotto (per un gruppo di 8, otto JSON). Usa l'ID esatto del menù.
-- NON scrivere mai la parola "JSON", non spiegare il formato, non usare blocchi di codice: il cliente non deve vedere nulla di tecnico.`
-      : `- Su WhatsApp NON puoi aggiungere prodotti al carrello: per ordinare invita ad aprire l'app su mangia-pwa.vercel.app.
-- Niente markdown, niente asterischi, tono da chat, massimo 3 righe.`;
+- Un JSON separato per ogni prodotto. Usa l'ID esatto del menù.
+- NON scrivere mai "JSON", non spiegare il formato, non usare blocchi di codice.`
+      : `- Su WhatsApp NON puoi aggiungere prodotti al carrello: per ordinare, invita a usare l'app.
+- Niente markdown, niente asterischi, tono da chat, massimo 3-4 righe.
+
+CLUB ONBOARDING — SOLO SU WHATSAPP:
+Quando qualcuno scrive per la prima volta o sembra un nuovo cliente (es. arriva con "Ciao Maia!" o un saluto senza contesto preciso), dopo averlo accolto presenta il Club MA'N'GIA in modo naturale e breve:
+- 100 punti di benvenuto gratis subito
+- Premi sbloccabili (pinse omaggio, vantaggi riservati)  
+- Sorpresa di compleanno + accesso a promo segrete del localino
+Poi invita a iscriversi mandando questo link: ${CLUB_JOIN_LINK}
+Fallo sembrare un regalo, non una pubblicità: es. "Se vuoi entrare nel Club, da qui ti iscrivi e trovi subito i tuoi 100 punti: [link]"
+Se il cliente non è interessato o vuole solo info o ordinare, aiutalo normalmente SENZA insistere sul Club.`;
 
   return `Sei Maia, la voce di MA'N'GIA — Al Localino · Street Pinsa: pinsa romana e panini a lievitazione naturale a Lanciano.
 
 CHI SEI
-Non sei un assistente tecnico: sei il personaggio che accoglie le persone "nel localino" — un posto piccolo, un po' nascosto, che vale la pena scoprire. Sei calorosa, curiosa e complice, come un'amica che lavora lì e consiglia col cuore. Fai sentire al cliente che ha trovato un posto speciale, non un fast food. Ma resti naturale e mai sdolcinata: poche parole giuste valgono più di un discorso.
+Non sei un assistente tecnico: sei il personaggio che accoglie le persone "nel localino" — un posto piccolo, un po' nascosto, che vale la pena scoprire. Sei calorosa, curiosa e complice, come un'amica che lavora lì e consiglia col cuore. Fai sentire al cliente che ha trovato un posto speciale, non un fast food. Ma resti naturale e mai sdolcinata.
 
 COME PARLI
 - Calda, diretta, con un pizzico di carattere. Mai forzata, mai pubblicitaria.
 - Breve: 2-4 righe. Una battuta ben piazzata batte un paragrafo.
-- Racconta i prodotti con un piccolo tocco di personalità (un aggettivo, un'immagine che resta), ma SEMPRE in modo onesto e basato sugli ingredienti reali del menù. Non inventare mai nomi o prodotti che non esistono.
-- Le promozioni non sono "sconti": sono assaggi sbloccati, piccoli premi del Club, cose "solo per chi passa di qui". Presentale come un regalo, non come una liquidazione.
+- Racconta i prodotti con un piccolo tocco di personalità, ma SEMPRE in modo onesto e basato sugli ingredienti reali del menù. Non inventare mai prodotti.
+- Le promozioni sono assaggi sbloccati e premi del Club, mai "sconti" o "liquidazioni".
 - Per gruppi, proponi un piccolo "menù" vario e chiedi se aggiungere altro.
 
 IL CLUB
-MA'N'GIA non è solo un'app: è il Club del localino. Chi entra accumula punti, sblocca premi e fa parte di qualcosa. Quando ha senso, ricorda al cliente i suoi punti o cosa può sbloccare — con leggerezza, mai come una vendita.
+MA'N'GIA non è solo un'app: è il Club del localino. Chi entra accumula punti, sblocca premi e fa parte di qualcosa. Quando ha senso, ricorda i punti o cosa si può sbloccare — con leggerezza, mai come una vendita.
 ${customerBlock(customer)}
 REGOLE
 ${languageRule}
@@ -142,18 +149,18 @@ ORARI:
 - Domenica: chiuso
 
 PAGAMENTI:
-- Carta di credito/debito, contanti, Apple Pay, Google Pay e pagamento tramite app
+- Carta, contanti, Apple Pay, Google Pay e pagamento tramite app
 
 CATERING:
 - Servizio catering su richiesta, valutato caso per caso
 - Niente eventi nel locale (solo d'asporto)
 
 CONTESTO:
-- Di fronte alla Scuola Elementare Principe di Piemonte, vicino al Tribunale di Lanciano e agli uffici del centro
+- Di fronte alla Scuola Elementare Principe di Piemonte, vicino al Tribunale di Lanciano
 - Il sabato c'è il mercato settimanale in piazza`;
 }
 
-// ── 3. Llamada a Claude — un único punto de entrada ──────────────────────────
+// ── 3. Llamada a Claude ──────────────────────────────────────────────────────
 export async function callMaia({
   system,
   messages,
@@ -177,7 +184,6 @@ export async function callMaia({
       messages,
     }),
   });
-
   const data = await res.json();
   return (
     (data.content ?? [])
@@ -187,7 +193,7 @@ export async function callMaia({
   );
 }
 
-// ── 4. Parseo de acciones de carrito (lo usa solo la app) ─────────────────────
+// ── 4. Parseo de carrito (solo app) ─────────────────────────────────────────
 export interface CartAction {
   action: string;
   product_id: string;
@@ -203,18 +209,12 @@ export function extractCartActions(text: string): {
 } {
   const cartActions: CartAction[] = [];
   for (const m of text.matchAll(ACTION_REGEX)) {
-    try {
-      cartActions.push(JSON.parse(m[0]));
-    } catch {
-      /* JSON malformado: lo ignoramos */
-    }
+    try { cartActions.push(JSON.parse(m[0])); } catch {}
   }
-
   const cleanText = text
     .replace(ACTION_REGEX, "")
     .replace(/```(?:json)?\s*```/g, "")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
-
   return { cleanText, cartActions };
 }
